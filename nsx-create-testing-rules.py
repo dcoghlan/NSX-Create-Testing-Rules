@@ -33,6 +33,7 @@ def f_load_arguments():
     global modeAdd
     global sectionName
     global ruleCount
+    global appliedTo
 
     parser = argparse.ArgumentParser(
         description='Create a firewall section with test rules.')
@@ -83,6 +84,12 @@ def f_load_arguments():
         help = 'Number of rules to create',\
         metavar = 'number',\
         dest = 'ruleCount',\
+        required = True)
+    addParser.add_argument(
+        '--applied-to',\
+        help = 'Where the rules are to be Applied To',\
+        metavar = 'edge-id|edge-all|dfw',\
+        dest = 'appliedTo',\
         required = True)
 
     # Sub-Parsers defined
@@ -142,6 +149,16 @@ def f_load_arguments():
     except AttributeError:
         ruleCount = None
 
+    try:
+        if args.appliedTo.lower() == 'dfw':
+            appliedTo = 'DISTRIBUTED_FIREWALL'
+        elif args.appliedTo.lower() == 'edge-all':
+            appliedTo = 'ALL_EDGES'
+        else:
+            appliedTo = args.appliedTo
+    except:
+        appliedTo = None
+
 def f_default_headers():
     global nsx_api_headers
 
@@ -181,6 +198,7 @@ def f_get_etag():
 
     return response.headers['ETag']
 
+
 def f_generate_fw_rules(count,sectionName):
     xml = ''
     xml += '<section name="%s: %s rules">' % (sectionName,count)
@@ -200,9 +218,7 @@ def f_generate_fw_rules(count,sectionName):
         '<action>%s</action>'\
         '<appliedToList>'\
             '<appliedTo>'\
-                '<name>DISTRIBUTED_FIREWALL</name>'\
-                '<value>DISTRIBUTED_FIREWALL</value>'\
-                '<type>DISTRIBUTED_FIREWALL</type>'\
+                '<value>%s</value>'\
                 '<isValid>true</isValid>'\
             '</appliedTo>'\
         '</appliedToList>'\
@@ -231,7 +247,7 @@ def f_generate_fw_rules(count,sectionName):
         '<direction>inout</direction>'\
         '<packetType>any</packetType>'\
     '</rule>'\
-    % (ipCount,'deny',srcIp,dstIP,ipCount)
+    % (ipCount, 'deny', appliedTo, srcIp, dstIP, ipCount)
 
         ipCount += 1
         octet4 += 1
