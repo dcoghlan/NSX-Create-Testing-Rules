@@ -1,6 +1,6 @@
 # Author:   Dale Coghlan (www.sneaku.com)
 # Date:     26th Aug 2015
-# Version:  1.0.0
+# Version:  1.0.1
 
 # ----------------------------------------------------------------------------
 # Set some variables. No need to change anything else after this section
